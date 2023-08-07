@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,16 +9,13 @@ namespace MizMaker
 {
     internal class Program
     {
-        private static string _outFolder;
-        private static string _watchFolder;
-        private static string _templateOutFolder;
-        private static readonly object _lockObject = new object();
+        private static readonly object LockObject = new();
         
         private static Profile[] LoadProfiles(string category)
         {
             try
             {
-                return File.ReadAllLines($"wx/{category}.csv").Select(Profile.FromString).ToArray();
+                return File.ReadAllLines(Path.Combine(Settings.Instance.WxFolder, $"{category}.csv")).Select(Profile.FromString).ToArray();
             }
             catch (FileNotFoundException)
             {
@@ -27,23 +23,14 @@ namespace MizMaker
             }
         }
 
-        public static void Main(string[] args)
+        public static void Main()
         {
-            _outFolder = args.FirstOrDefault() ?? "out";
-            _watchFolder = args.Skip(1).FirstOrDefault();
-            _templateOutFolder = args.Skip(2).FirstOrDefault();
-
-            _watchFolder = _watchFolder == null ? "." : Path.Combine(_outFolder, _watchFolder);
-            
-            if (_templateOutFolder != null)
-                _templateOutFolder = Path.Combine(_outFolder, _templateOutFolder);
-            
             LsonDict.SerializeImplicitIndex = true;
 
-            if (_templateOutFolder != null)
+            if (Settings.Instance.ProcessedFolder != null)
             {
-                foreach (var watchPath in MizFile.KnownTheatres
-                    .Select(x => _watchFolder.Replace("__MAP__", x))
+                foreach (var watchPath in Settings.Instance.Theatres.Values
+                    .Select(x => Settings.Instance.WatchFolder.Replace("__MAP__", x))
                     .Where(Directory.Exists))
                 {
                     Console.WriteLine($"Now watching: {watchPath}");
@@ -76,8 +63,8 @@ namespace MizMaker
                 }
             }
             else
-                foreach (var watchPath in MizFile.KnownTheatres
-                    .Select(x => _watchFolder.Replace("__MAP__", x))
+                foreach (var watchPath in Settings.Instance.Theatres.Values
+                    .Select(x => Settings.Instance.WatchFolder.Replace("__MAP__", x))
                     .Where(Directory.Exists))
                 {
                     RunOnce(watchPath);
@@ -86,14 +73,14 @@ namespace MizMaker
 
         static void RunOnce(string watchFolder)
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
                 var mizTemplates = Directory.GetFiles(watchFolder, "*.miz", SearchOption.TopDirectoryOnly);
                 var sb = new StringBuilder();
 
                 foreach (var mizTemplate in mizTemplates)
                 {
-                    if (_templateOutFolder != null && File.Exists(Path.Combine(_templateOutFolder, Path.GetFileName(mizTemplate))))
+                    if (Settings.Instance.ProcessedFolder != null && File.Exists(Path.Combine(Settings.Instance.ProcessedFolder, Path.GetFileName(mizTemplate))))
                     {
                         sb.Append(DateTime.UtcNow.ToString("u"));
                         sb.Append("] ERR Template of name '");
@@ -105,10 +92,10 @@ namespace MizMaker
                     try
                     {
                         Console.WriteLine($"Found: {mizTemplate}");
-                        var miz = new MizFile(mizTemplate, _outFolder);
+                        var miz = new MizFile(mizTemplate, Settings.Instance.OutFolder);
                         foreach (var profile in LoadProfiles(miz.FilePrefix))
                             miz.ApplyProfile(profile);
-                        miz.Finish(_templateOutFolder);
+                        miz.Finish(Settings.Instance.ProcessedFolder);
                     }
                     catch (Exception x)
                     {

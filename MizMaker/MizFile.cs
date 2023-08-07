@@ -12,13 +12,12 @@ namespace MizMaker
     {
         private const double MissionLength = 4 * 60 * 60;
         
-        private static readonly Regex MizFileRx = new Regex(@"([A-Z]+)_(.*?)(?:_([VI]MC\([DN]\)[0-9]*)|_TEMPLATE.*)?\.miz", RegexOptions.Compiled);
+        private static readonly Regex MizFileRx = new(Settings.Instance.MizRegex, RegexOptions.Compiled);
         private static readonly string[] CarrierBasedGroupTypes = {"plane", "helicopter", "static"};
 
         private readonly string _path;
         private readonly string _outFolder;
-
-        private int firstFreeGroupId;
+        private int _firstFreeGroupId;
 
         public MizFile(string path, string outFolder)
         {
@@ -27,30 +26,8 @@ namespace MizMaker
         }
 
         public string FilePrefix => Path.GetFileName(_path).Split('_')[0];
-
-        public static string[] KnownTheatres = { "PERSIAN GULF", "SYRIA", "CAUCASUS", "NEVADA", "NORMANDY" };
         
-        public string Theatre
-        {
-            get
-            {
-                switch (FilePrefix)
-                {
-                    case "PG":
-                        return "PERSIAN GULF";
-                    case "SY":
-                        return "SYRIA";
-                    case "CCS":
-                        return "CAUCASUS";
-                    case "NVD":
-                        return "NEVADA";
-                    case "NMD":
-                        return "NORMANDY";
-                    default:
-                        return FilePrefix;
-                }
-            }
-        }
+        public string Theatre => Settings.Instance.Theatres[FilePrefix];
 
         public void ApplyProfile(Profile profile)
         {
@@ -221,7 +198,7 @@ namespace MizMaker
                 else{
                     Console.Write($"New group: '{unit["name"]}'.");
                     newGrp = CloneObject(templateGroup);
-                    newGrp["groupId"] = firstFreeGroupId++;
+                    newGrp["groupId"] = _firstFreeGroupId++;
                     groups[groups.Keys.Max(x => x.GetIntLenient()) + 1] = newGrp;
                 }
 
@@ -453,7 +430,7 @@ namespace MizMaker
             return newPath;
         }
 
-        public void Save(string savePath, LsonValue mission)
+        public static void Save(string savePath, LsonValue mission)
         {
             var contents = LsonVars.ToString(new Dictionary<string, LsonValue>
             {
@@ -491,7 +468,7 @@ namespace MizMaker
                 }
             }
 
-            firstFreeGroupId = topValue + 1;
+            _firstFreeGroupId = topValue + 1;
         }
 
         public void Finish(string templateOutFolder)
