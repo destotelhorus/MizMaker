@@ -133,6 +133,9 @@ namespace MizMaker
                 var type = u["type"].GetString();
                 if (type.StartsWith("CVN_"))
                 {
+                    if (profile.CvnSpawn == "")
+                        return null;
+                    
                     newStart = SpawnPointByName(mission, shipGroup, profile.CvnSpawn);
                     wantHdg = Angle.FromDeg(profile.CvnDir.Dir);
                     wantSpeed = profile.CvnDir.Meters;
@@ -143,6 +146,9 @@ namespace MizMaker
                 {
                     if (newStart == default)
                     { // only use LHA heading if group doesn't contain a CVN
+                        if (profile.LhaSpawn == "")
+                            return null;
+                        
                         newStart = SpawnPointByName(mission, shipGroup, profile.LhaSpawn);
                         wantHdg = Angle.FromDeg(profile.LhaDir.Dir);
                         wantSpeed = profile.LhaDir.Meters;
@@ -420,9 +426,11 @@ namespace MizMaker
 
         private string MakeCopy(string profileName)
         {
-            var m = MizFileRx.Match(_path);
+            var m = MizFileRx.Match(Path.GetFileName(_path));
 
-            var desiredName = $"{m.Groups[1].Value}_{m.Groups[2].Value}_{profileName}.miz";
+            var desiredName = m.Success 
+                ? $"{m.Groups[1].Value}_{m.Groups[2].Value}_{profileName}.miz" 
+                : Path.GetFileNameWithoutExtension(_path) + "_" + profileName + ".miz";
 
             var newPath = Path.Combine(_outFolder.Replace("__MAP__",Theatre), desiredName);
             

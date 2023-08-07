@@ -27,51 +27,55 @@ namespace MizMaker
         {
             LsonDict.SerializeImplicitIndex = true;
 
-            if (Settings.Instance.ProcessedFolder != null)
+            foreach (var theatre in Settings.Instance.Theatres.Values)
             {
-                foreach (var watchPath in Settings.Instance.Theatres.Values
-                    .Select(x => Settings.Instance.WatchFolder.Replace("__MAP__", x))
-                    .Where(Directory.Exists))
+                var watchPath = Settings.Instance.WatchFolder.Replace("__MAP__", theatre);
+                if (!Directory.Exists(watchPath))
                 {
-                    Console.WriteLine($"Now watching: {watchPath}");
-                    
-                    var w = new FileSystemWatcher(watchPath);
-                    w.NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.LastWrite;
-                    w.Filter = "*.miz";
-                    w.EnableRaisingEvents = true;
-                    w.IncludeSubdirectories = false;
-
-                    w.Changed += (_,_) =>
-                    {
-                        Thread.Sleep(10000);
-                        RunOnce(watchPath);
-                    };
-                    w.Created += (_,_) =>
-                    {
-                        Thread.Sleep(10000);
-                        RunOnce(watchPath);
-                    };
-                    w.Renamed += (_,_) =>
-                    {
-                        Thread.Sleep(10000);
-                        RunOnce(watchPath);
-                    };
+                    Console.WriteLine($"Cannot watch directory: Watch folder does not exist - {watchPath}");
+                    continue;
                 }
 
-                while (Console.ReadLine() != "exit")
+                var outPath = Settings.Instance.OutFolder.Replace("__MAP__", theatre);
+                if (!Directory.Exists(outPath))
                 {
+                    Console.WriteLine($"Cannot watch directory: Out folder does not exist - {outPath}");
+                    continue;
                 }
+
+                var processedPath = Settings.Instance.ProcessedFolder?.Replace("__MAP__", theatre);
+
+                Console.WriteLine($"Now watching: {watchPath}");
+                
+                var w = new FileSystemWatcher(watchPath);
+                w.NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.LastWrite;
+                w.Filter = "*.miz";
+                w.EnableRaisingEvents = true;
+                w.IncludeSubdirectories = false;
+
+                w.Changed += (_,_) =>
+                {
+                    Thread.Sleep(10000);
+                    RunOnce(watchPath, outPath, processedPath);
+                };
+                w.Created += (_,_) =>
+                {
+                    Thread.Sleep(10000);
+                    RunOnce(watchPath, outPath, processedPath);
+                };
+                w.Renamed += (_,_) =>
+                {
+                    Thread.Sleep(10000);
+                    RunOnce(watchPath, outPath, processedPath);
+                };
             }
-            else
-                foreach (var watchPath in Settings.Instance.Theatres.Values
-                    .Select(x => Settings.Instance.WatchFolder.Replace("__MAP__", x))
-                    .Where(Directory.Exists))
-                {
-                    RunOnce(watchPath);
-                }
+
+            while (Console.ReadLine() != "exit")
+            {
+            }
         }
 
-        static void RunOnce(string watchFolder)
+        static void RunOnce(string watchFolder, string outFolder, string processedFolder)
         {
             lock (LockObject)
             {
@@ -80,7 +84,7 @@ namespace MizMaker
 
                 foreach (var mizTemplate in mizTemplates)
                 {
-                    if (Settings.Instance.ProcessedFolder != null && File.Exists(Path.Combine(Settings.Instance.ProcessedFolder, Path.GetFileName(mizTemplate))))
+                    if (processedFolder != null && File.Exists(Path.Combine(processedFolder, Path.GetFileName(mizTemplate))))
                     {
                         sb.Append(DateTime.UtcNow.ToString("u"));
                         sb.Append("] ERR Template of name '");
@@ -92,10 +96,17 @@ namespace MizMaker
                     try
                     {
                         Console.WriteLine($"Found: {mizTemplate}");
-                        var miz = new MizFile(mizTemplate, Settings.Instance.OutFolder);
+                        var miz = new MizFile(mizTemplate, outFolder);
                         foreach (var profile in LoadProfiles(miz.FilePrefix))
                             miz.ApplyProfile(profile);
-                        miz.Finish(Settings.Instance.ProcessedFolder);
+                        miz.Finish(processedFolder);
+                    }
+                    catch (ApplicationException x)
+                    {
+                        sb.Append(DateTime.UtcNow.ToString("u"));
+                        sb.Append("] Exception while processing: ");
+                        sb.AppendLine(Path.GetFileName(mizTemplate));
+                        sb.AppendLine(x.Message);
                     }
                     catch (Exception x)
                     {

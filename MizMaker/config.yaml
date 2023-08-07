@@ -1,6 +1,6 @@
 ---
 # config file for MizMaker
-# MizMaker will search for this this file at ./config.yaml and ../config.yaml
+# MizMaker will search for this this file at ./config.yaml and ../config.yaml relative to working dir.
 
 # key: miz file prefix & filename under wx folder. 1 or more uppercase letters
 # value: cloud folder name under https://cloud88.tawdcs.org/f/6534
@@ -17,13 +17,13 @@ theatres:
 miz_regex: ^([A-Z]+)_(.*?)(?:_([VI]MC\([DN]\)[0-9]*)|_TEMPLATE.*)?\.miz$
 
 # input folder to watch for templates. __MAP__ will be replaced by current theatre
-watch_folder: C:\
+watch_folder: C:\Server\DCS\CloudSync\Missions\__MAP__\1 TRAINING\Input
 
 # processed templates will be moved here. __MAP__ will be replaced by current theatre
-processed_folder: C:\
+processed_folder: C:\Server\DCS\CloudSync\Missions\__MAP__\1 TRAINING\Processed
 
 # destination folder for generated miz. __MAP__ will be replaced by current theatre
-out_folder: C:\
+out_folder: C:\Server\DCS\CloudSync\Missions\__MAP__\1 TRAINING
 
 # folder where the {theatre}.csv files are stored
 wx_folder: wx
