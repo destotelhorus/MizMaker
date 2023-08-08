@@ -54,9 +54,9 @@ namespace MizMaker
                 {
                     profile.Clouds = new CloudsOld
                     {
-                        Base = Int32.Parse(cells[5]),
-                        Thickness = Int32.Parse(cells[6]),
-                        Density = Int32.Parse(cells[4]),
+                        Base = Int32.Parse(cells[4]),
+                        Thickness = Int32.Parse(cells[5]),
+                        Density = Int32.Parse(cells[6]),
                         Precipitation = Int32.Parse(cells[7])
                     };
                 }
