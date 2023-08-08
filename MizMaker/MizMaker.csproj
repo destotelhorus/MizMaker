@@ -53,6 +53,10 @@
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Settings.cs" />
         <Compile Include="Vec2d.cs" />
+        <Compile Include="Weather\Clouds.cs" />
+        <Compile Include="Weather\CloudsNew.cs" />
+        <Compile Include="Weather\CloudsOld.cs" />
+        <Compile Include="Weather\Fog.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />

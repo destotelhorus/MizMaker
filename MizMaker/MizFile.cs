@@ -49,7 +49,7 @@ namespace MizMaker
                 ["type_weather"] = 0,
                 ["atmosphere_type"] = 0,
                 ["groundTurbulence"] = profile.Turb * 0.304,
-                ["enable_fog"] = false,
+                ["enable_fog"] = profile.Fog.Enabled,
                 ["enable_dust"] = false,
                 ["dust_density"] = 0,
                 ["qnh"] = profile.QNH / 0.029529980164712 * 0.0075006157584566,
@@ -59,11 +59,7 @@ namespace MizMaker
                 },
                 ["modifiedTime"] = true,
                 ["name"] = "Custom",
-                ["fog"] = new LsonDict
-                {
-                    ["thickness"] = 0,
-                    ["visibility"] = 0,
-                },
+                ["fog"] = profile.Fog.CreateLsonDict()
                 ["wind"] = new LsonDict
                 {
                     ["at8000"] = new LsonDict
@@ -86,14 +82,7 @@ namespace MizMaker
                 {
                     ["distance"] = 80000,
                 },
-                ["clouds"] = new LsonDict
-                {
-                    ["density"] = 0,
-                    ["thickness"] = 200,
-                    ["preset"] = profile.CloudPreset,
-                    ["base"] = Math.Round(profile.CloudBase * 0.3048 / 100) * 100,
-                    ["iprecptns"] = 0,
-                },
+                ["clouds"] = profile.Clouds.CreateLsonDict()
             };
             
             AdjustShips(miz, profile);
