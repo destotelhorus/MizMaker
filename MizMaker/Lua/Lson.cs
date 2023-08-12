@@ -319,7 +319,8 @@ namespace MizMaker.Lua
                                 case 'n': sb.Append('\n'); break;
                                 case 'r': sb.Append('\r'); break;
                                 case 't': sb.Append('\t'); break;
-                                case 'v': sb.Append('\v'); break;
+                                case '\n': sb.Append('\v'); 
+                                    break;
                                 default:
                                     if (Cur >= '0' && Cur <= '9')
                                         throw new LsonParseException(this, "String escapes like \\d - \\ddd are not yet implemented.");
@@ -1442,6 +1443,7 @@ namespace MizMaker.Lua
                     case '\b': sb.Append("\\b"); break;
                     case '\f': sb.Append("\\f"); break;
                     case '\n': sb.Append("\\n"); break;
+                    case '\v': sb.Append("\\\n"); break;
                     case '\r': sb.Append("\\r"); break;
                     case '\t': sb.Append("\\t"); break;
                     default:
