@@ -59,7 +59,7 @@ namespace MizMaker
                 },
                 ["modifiedTime"] = true,
                 ["name"] = "Custom",
-                ["fog"] = profile.Fog.CreateLsonDict()
+                ["fog"] = profile.Fog.CreateLsonDict(),
                 ["wind"] = new LsonDict
                 {
                     ["at8000"] = new LsonDict

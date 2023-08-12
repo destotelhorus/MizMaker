@@ -21,7 +21,7 @@ public class Fog
         return new LsonDict
         {
             ["thickness"] = 0,
-            ["visibility"] = 0,
+            ["visibility"] = 0
         };
     }
 }
