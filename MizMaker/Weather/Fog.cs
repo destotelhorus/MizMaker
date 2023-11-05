@@ -1,4 +1,5 @@
-﻿using MizMaker.Lua;
+﻿using System;
+using MizMaker.Lua;
 
 namespace MizMaker.Weather;
 
@@ -14,8 +15,8 @@ public class Fog
         {
             return new LsonDict
             {
-                ["visibility"] = Visibility,
-                ["thickness"] = Thickness
+                ["visibility"] = Math.Round(Visibility * 0.3048 / 100) * 100,
+                ["thickness"] = Math.Round(Thickness * 0.3048 / 100) * 100
             };
         }
         return new LsonDict

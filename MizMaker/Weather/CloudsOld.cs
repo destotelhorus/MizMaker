@@ -15,9 +15,9 @@ public class CloudsOld : Clouds
         return new LsonDict
         {
             ["density"] = Density,
-            ["thickness"] = Thickness,
-            ["base"] = Base,
-            ["iprecptns"] = Precipitation,
+            ["thickness"] = Math.Round(Thickness * 0.3048 / 100) * 100,
+            ["base"] = Math.Round(Base * 0.3048 / 100) * 100,
+            ["iprecptns"] = Precipitation
         };
     }
 }

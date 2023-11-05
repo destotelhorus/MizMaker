@@ -15,7 +15,7 @@ public class CloudsNew : Clouds
             ["density"] = 0,
             ["thickness"] = 200,
             ["preset"] = Preset,
-            ["base"] = Base,
+            ["base"] = Math.Round(Base * 0.3048 / 100) * 100,
             ["iprecptns"] = 0
         };
     }
