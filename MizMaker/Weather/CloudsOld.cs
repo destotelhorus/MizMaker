@@ -16,7 +16,7 @@ public class CloudsOld : Clouds
         {
             ["density"] = Density,
             ["thickness"] = Thickness,
-            ["base"] = Math.Round(Base * 0.3048 / 100) * 100,
+            ["base"] = Base,
             ["iprecptns"] = Precipitation,
         };
     }
