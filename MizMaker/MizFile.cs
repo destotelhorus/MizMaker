@@ -85,7 +85,7 @@ namespace MizMaker
                 ["clouds"] = profile.Clouds.CreateLsonDict()
             };
             
-            AdjustShips(miz, profile);
+            //AdjustShips(miz, profile);
 
             var savePath = MakeCopy(profile.Name);
             Save(savePath, miz);
