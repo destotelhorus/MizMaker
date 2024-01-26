@@ -26,4 +26,4 @@ processed_folder: C:\Server\DCS\CloudSync\Missions\__MAP__\1 TRAINING\Processed
 out_folder: C:\Server\DCS\CloudSync\Missions\__MAP__\1 TRAINING
 
 # folder where the {theatre}.csv files are stored
-wx_folder: wx
+wx_folder: C:\Server\DCS\CloudSync\Missions\#WEATHERCONFIG
