@@ -1,12 +1,11 @@
-﻿using System;
-using MizMaker.Lua;
+﻿using MizMaker.Lua;
 
 namespace MizMaker.Weather;
 
 public class CloudsNew : Clouds
 {
     public string Preset;
-    public int Base;
+    public double Base;
 
     public override LsonDict CreateLsonDict()
     {
@@ -15,7 +14,7 @@ public class CloudsNew : Clouds
             ["density"] = 0,
             ["thickness"] = 200,
             ["preset"] = Preset,
-            ["base"] = Math.Round(Base * 0.3048 / 100) * 100,
+            ["base"] = (int) (Base * 0.3048 / 100.0),
             ["iprecptns"] = 0
         };
     }
