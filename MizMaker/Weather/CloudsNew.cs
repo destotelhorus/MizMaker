@@ -14,7 +14,7 @@ public class CloudsNew : Clouds
             ["density"] = 0,
             ["thickness"] = 200,
             ["preset"] = Preset,
-            ["base"] = (int) (Base * 0.3048 / 100.0),
+            ["base"] = (int) (Base * 0.3048),
             ["iprecptns"] = 0
         };
     }

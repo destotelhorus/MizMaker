@@ -14,8 +14,8 @@ public class Fog
         {
             return new LsonDict
             {
-                ["visibility"] = (int) (Visibility * 0.3048 / 100.0),
-                ["thickness"] = (int) (Thickness * 0.3048 / 100.0)
+                ["visibility"] = (int) (Visibility * 0.3048),
+                ["thickness"] = (int) (Thickness * 0.3048)
             };
         }
         return new LsonDict

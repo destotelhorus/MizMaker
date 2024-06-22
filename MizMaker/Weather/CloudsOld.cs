@@ -14,8 +14,8 @@ public class CloudsOld : Clouds
         return new LsonDict
         {
             ["density"] = Density,
-            ["thickness"] = (int) (Thickness * 0.3048 / 100.0),
-            ["base"] = (int) (Base * 0.3048 / 100.0),
+            ["thickness"] = (int) (Thickness * 0.3048),
+            ["base"] = (int) (Base * 0.3048),
             ["iprecptns"] = Precipitation
         };
     }
