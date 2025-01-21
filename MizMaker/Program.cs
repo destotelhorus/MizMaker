@@ -15,7 +15,7 @@ namespace MizMaker
         {
             try
             {
-                return File.ReadAllLines(Path.Combine(Settings.Instance.WxFolder, $"{category}.csv")).Select(Profile.FromString).ToArray();
+                return File.ReadAllLines(Path.Combine(Settings.Instance.WxFolder, $"{category}.csv")).Skip(1).Select(Profile.FromString).ToArray();
             }
             catch (FileNotFoundException)
             {
