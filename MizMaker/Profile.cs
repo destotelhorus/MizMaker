@@ -11,16 +11,13 @@ namespace MizMaker
         public DateTime StartTime;
         public Clouds Clouds;
         public Fog Fog;
+        public int DustDensity;
         public int QNH;
         public int Temp;
         public DirKts DirKtsGnd;
         public DirKts Wind066;
         public DirKts Wind260;
         public int Turb;
-        public string LhaSpawn;
-        public DirKts LhaDir;
-        public string CvnSpawn;
-        public DirKts CvnDir;
 
         public static Profile FromString(string s)
         {
@@ -89,57 +86,50 @@ namespace MizMaker
                 };
             }
 
-            try
+            if (!String.IsNullOrWhiteSpace(cells[10]))
             {
-                profile.QNH = Int32.Parse(cells[10]);
+                profile.DustDensity = Int32.Parse(cells[10]);
             }
-            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid QNH: {cells[10]}\n{x.Message}"); }
+            else
+            {
+                profile.DustDensity = -1;
+            }
 
             try
             {
-                profile.Temp = Int32.Parse(cells[11]);
+                profile.QNH = Int32.Parse(cells[11]);
             }
-            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid Temp: {cells[11]}\n{x.Message}"); }
+            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid QNH: {cells[11]}\n{x.Message}"); }
 
             try
             {
-                profile.DirKtsGnd = DirKts.FromString(cells[12]);
+                profile.Temp = Int32.Parse(cells[12]);
             }
-            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid Wind at GND: {cells[12]}\n{x.Message}"); }
+            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid Temp: {cells[12]}\n{x.Message}"); }
+
+            try
+            {
+                profile.DirKtsGnd = DirKts.FromString(cells[13]);
+            }
+            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid Wind at GND: {cells[13]}\n{x.Message}"); }
             
             try
             {
-                profile.Wind066 = DirKts.FromString(cells[13]);
+                profile.Wind066 = DirKts.FromString(cells[14]);
             }
-            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid Wind at 066: {cells[13]}\n{x.Message}"); }
+            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid Wind at 066: {cells[14]}\n{x.Message}"); }
             
             try
             {
-                profile.Wind260 = DirKts.FromString(cells[14]);
+                profile.Wind260 = DirKts.FromString(cells[15]);
             }
-            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid Wind at GND: {cells[14]}\n{x.Message}"); }
+            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid Wind at GND: {cells[15]}\n{x.Message}"); }
 
             try
             {
-                profile.Turb = Int32.Parse(cells[15]);
+                profile.Turb = Int32.Parse(cells[16]);
             }
-            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid Turb: {cells[15]}\n{x.Message}"); }
-
-            profile.LhaSpawn = cells[16];
-            
-            if (!String.IsNullOrWhiteSpace(profile.LhaSpawn))
-                try
-                {
-                    profile.LhaDir = DirKts.FromString(cells[17]);
-                }
-                catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid LHA/To: {cells[17]}\n{x.Message}"); }
-
-            profile.CvnSpawn = cells[18];
-            try
-            {
-                profile.CvnDir = DirKts.FromString(cells[19]);
-            }
-            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid CVN/To: {cells[19]}\n{x.Message}"); }
+            catch (Exception x) { throw new ApplicationException($"{profile.Name} has invalid Turb: {cells[16]}\n{x.Message}"); }
 
             return profile;
         }

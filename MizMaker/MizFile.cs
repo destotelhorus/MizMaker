@@ -50,8 +50,8 @@ namespace MizMaker
                 ["atmosphere_type"] = 0,
                 ["groundTurbulence"] = profile.Turb * 0.304,
                 ["enable_fog"] = profile.Fog.Enabled,
-                ["enable_dust"] = false,
-                ["dust_density"] = 0,
+                ["enable_dust"] = profile.DustDensity != -1,
+                ["dust_density"] = profile.DustDensity == -1 ? 0 : (int) (profile.DustDensity * 0.3048),
                 ["qnh"] = profile.QNH / 0.029529980164712 * 0.0075006157584566,
                 ["season"] = new LsonDict
                 {
@@ -84,96 +84,9 @@ namespace MizMaker
                 },
                 ["clouds"] = profile.Clouds.CreateLsonDict()
             };
-            
-            //AdjustShips(miz, profile);
 
             var savePath = MakeCopy(profile.Name);
             Save(savePath, miz);
-        }
-
-        private void AdjustShips(LsonValue mission, Profile profile)
-        {
-            foreach (var coal in mission["coalition"].Values)
-            {
-                foreach (var cty in coal["country"].Values)
-                {
-                    if (cty.TryGetValue("ship", out var ship)
-                        && ship.TryGetValue("group", out var groups))
-                    {
-                        foreach (var grp in groups.Values.ToList())
-                        {
-                            var newCourse = AdjustShipGroup(grp, profile, mission);
-                            if (newCourse.HasValue)
-                                ExplodeGroup(groups, grp, mission, newCourse.Value);
-                        }
-                    }
-                }
-            }
-        }
-
-        private Vec2d? AdjustShipGroup(LsonValue shipGroup, Profile profile, LsonValue mission)
-        {
-            Angle wantHdg = default;
-            Vec2d newStart = default;
-            double wantSpeed = 10d;
-
-            foreach (var u in shipGroup["units"].Values)
-            {
-                var type = u["type"].GetString();
-                if (type.StartsWith("CVN_"))
-                {
-                    if (profile.CvnSpawn == "")
-                        return null;
-                    
-                    newStart = SpawnPointByName(mission, shipGroup, profile.CvnSpawn);
-                    wantHdg = Angle.FromDeg(profile.CvnDir.Dir);
-                    wantSpeed = profile.CvnDir.Meters;
-                    break;
-                }
-
-                if (type.StartsWith("LHA_"))
-                {
-                    if (newStart == default)
-                    { // only use LHA heading if group doesn't contain a CVN
-                        if (profile.LhaSpawn == "")
-                            return null;
-                        
-                        newStart = SpawnPointByName(mission, shipGroup, profile.LhaSpawn);
-                        wantHdg = Angle.FromDeg(profile.LhaDir.Dir);
-                        wantSpeed = profile.LhaDir.Meters;
-                    }
-                }
-            }
-
-            if (newStart == default)
-                return null;
-            
-            Console.Write($"{shipGroup["name"]} needs to face {wantHdg.Deg:000}!");
-            
-            var wp1 = shipGroup["route"]["points"][1];
-            var wp2 = shipGroup["route"]["points"][2];
-
-            var oldStart = new Vec2d(wp1);
-            var oldCourse = new Vec2d(wp2) - new Vec2d(wp1);
-
-            var newCourse = new Vec2d(wantHdg, wantSpeed * MissionLength);
-            var endPoint = newStart + newCourse;
-            
-            Console.WriteLine($" Actual: {newCourse.Angle.Deg:000}!");
-
-            wp1["x"] = newStart.X;
-            wp1["y"] = newStart.Y;
-            wp2["eta"] = 0d;
-            
-            wp2["x"] = endPoint.X;
-            wp2["y"] = endPoint.Y;
-            wp2["speed"] = wantSpeed;
-            wp2["eta"] = MissionLength;
-            
-            foreach (var unit in shipGroup["units"].Values) 
-                AdjustUnitInFormation(unit, oldStart, oldCourse, newStart, newCourse);
-
-            return newCourse;
         }
 
         private void ExplodeGroup(LsonValue groups, LsonValue templateGroup, LsonValue mission, Vec2d newCourse)
