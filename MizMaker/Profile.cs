@@ -24,7 +24,7 @@ namespace MizMaker
 
         public static Profile FromString(string s)
         {
-            var cells = s.Split('\t');
+            var cells = s.Split(',');
 
             var profile = new Profile();
             profile.Name = cells[0];
