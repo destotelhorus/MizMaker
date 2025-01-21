@@ -62,7 +62,7 @@ namespace MizMaker
 
             if (profile.Clouds == null)
             {
-                throw new ApplicationException($"{profile.Name} cloud settings are mission\n");
+                throw new ApplicationException($"{profile.Name} cloud settings are missing\n");
             }
 
             if (!String.IsNullOrWhiteSpace(cells[8]))
@@ -143,7 +143,7 @@ namespace MizMaker
         public double Meters => Knots * 0.5144444;
         public int Reciprocal => Dir > 180 ? Dir - 180 : Dir + 180;
 
-        private static readonly Regex WindRx = new(@"(^[0-9]{3})([0-9]{2})kt$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex WindRx = new(@"(^[0-9]{3})([0-9]{2,3})kt$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         
         public static DirKts FromString(string s)
         {
