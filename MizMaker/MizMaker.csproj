@@ -44,6 +44,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="AtisData.cs" />
         <Compile Include="Lua\Lson.cs" />
         <Compile Include="Lua\OffsetToLineCol.cs" />
         <Compile Include="Lua\Private\Util.cs" />

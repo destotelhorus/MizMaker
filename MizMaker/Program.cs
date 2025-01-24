@@ -22,6 +22,18 @@ namespace MizMaker
                 return new Profile[] { };
             }
         }
+        
+        private static AtisData[] LoadAtisData(string category)
+        {
+            try
+            {
+                return File.ReadAllLines(Path.Combine(Settings.Instance.WxFolder, $"{category}_ATIS_Override.csv")).Skip(1).Select(AtisData.FromString).ToArray();
+            }
+            catch (FileNotFoundException)
+            {
+                return new AtisData[] { };
+            }
+        }
 
         public static void Main()
         {
@@ -97,8 +109,9 @@ namespace MizMaker
                     {
                         Console.WriteLine($"Found: {mizTemplate}");
                         var miz = new MizFile(mizTemplate, outFolder);
+                        var atisData = LoadAtisData(miz.FilePrefix);
                         foreach (var profile in LoadProfiles(miz.FilePrefix))
-                            miz.ApplyProfile(profile);
+                            miz.ApplyProfile(profile, atisData);
                         miz.Finish(processedFolder);
                     }
                     catch (ApplicationException x)

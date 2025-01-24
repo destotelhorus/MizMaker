@@ -29,7 +29,7 @@ namespace MizMaker
         
         public string Theatre => Settings.Instance.Theatres[FilePrefix];
 
-        public void ApplyProfile(Profile profile)
+        public void ApplyProfile(Profile profile, AtisData[] atisData)
         {
             Console.WriteLine($" === Now on {profile.Name} === ");
             
@@ -85,8 +85,95 @@ namespace MizMaker
                 ["clouds"] = profile.Clouds.CreateLsonDict()
             };
 
+            if (atisData.Length > 0)
+            {
+                AdjustAtis(miz, profile, atisData);
+            }
+
             var savePath = MakeCopy(profile.Name);
             Save(savePath, miz);
+        }
+        
+        private void AdjustAtis(LsonValue mission, Profile profile, AtisData[] atisData)
+        {
+            foreach (var coal in mission["coalition"].Values)
+            {
+                foreach (var cty in coal["country"].Values)
+                {
+                    if (cty.TryGetValue("static", out var staticUnits)
+                        && staticUnits.TryGetValue("group", out var groups))
+                    {
+                        foreach (var grp in groups.Values.ToList())
+                        {
+                            var groupName = grp["name"].GetString();
+                            if (groupName.StartsWith("ATIS"))
+                            {
+                                var newAtisString = AdjustAtisString(groupName, profile, atisData);
+                                if (newAtisString != null)
+                                {
+                                    Console.Out.WriteLine("New ATIS String = " + newAtisString);
+                                }
+                            } 
+                        }
+                    }
+                }
+            }
+        }
+
+        private string AdjustAtisString(string currentAtisString, Profile profile, AtisData[] atisData)
+        {
+            foreach (var atisDataConfig in atisData)
+            {
+                if (currentAtisString.StartsWith("ATIS " + atisDataConfig.Name))
+                {
+                    int wind;
+                    switch (atisDataConfig.Altitude)
+                    { 
+                        case 0: wind = profile.DirKtsGnd.Dir;
+                            break;
+                        case 6600: wind = profile.Wind066.Dir;
+                            break;
+                        case 26000: wind = profile.Wind066.Dir;
+                            break;
+                        default:
+                            throw new ApplicationException($"Wind value {atisDataConfig.Altitude} is not accepted.");
+                    }
+
+                    bool useEasting;
+                    if (wind > atisDataConfig.HeadingEast)
+                    {
+                        useEasting = wind - atisDataConfig.HeadingEast < 90 || wind - atisDataConfig.HeadingEast >= 270;
+                    }
+                    else
+                    {
+                        useEasting = atisDataConfig.HeadingEast - wind < 90;
+                    }
+
+                    var active = useEasting
+                        ? atisDataConfig.ArrivalsEast + '/' + atisDataConfig.DeparturesEast
+                        : atisDataConfig.ArrivalsWest + '/' + atisDataConfig.DeparturesWest;
+                    return GenerateNewAtisString(currentAtisString, active);
+                }
+            }
+            return null;
+        }
+
+        private string GenerateNewAtisString(string currentAtisString, string active)
+        {
+            var result = "";
+            foreach (var block in currentAtisString.Split(','))
+            {
+                if (result.Length > 0)
+                {
+                    result += ',';
+                }
+                result += block;
+                if (block.TrimStart().StartsWith("TRAFFIC"))
+                {
+                    result += ", ACTIVE " + active;
+                }
+            }
+            return result;
         }
 
         private void ExplodeGroup(LsonValue groups, LsonValue templateGroup, LsonValue mission, Vec2d newCourse)
